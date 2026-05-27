@@ -35,7 +35,7 @@ regex = "1.12"
 mockall = "0.14"
 
 [features]
-__rustls = ["lettre?/tokio1-rustls-tls", "reqwest?/rustls-tls"]
+__rustls = ["lettre?/tokio1-rustls-tls", "reqwest?/rustls"]
 __tls = ["lettre?/tokio1-native-tls", "reqwest?/native-tls"]
 default = ["default-tls"]
 default-tls = ["native-tls"]
