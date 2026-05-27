@@ -54,22 +54,24 @@ impl DataSource for MemoryUsage {
         let meminfo = MeminfoFileContent::try_from_file(MEMINFO_PATH).await?;
         let mut res = Vec::new();
         if self.memory {
-            res.push(if meminfo.mem_total != 0 {
-                Ok(((meminfo.mem_total - meminfo.mem_available) * 100 / meminfo.mem_total) as u8)
+            res.push(
+                ((meminfo.mem_total - meminfo.mem_available) * 100)
+                    .checked_div(meminfo.mem_total)
+                    .map(|v| v as u8)
+                    .ok_or_else(|| Error(String::from("Could not read memory usage.")))
                     .and_then(Self::Item::new)
-                    .map(Some)
-            } else {
-                Err(Error(String::from("Could not read memory usage.")))
-            });
+                    .map(Some),
+            );
         }
         if self.swap {
-            res.push(if meminfo.swap_total != 0 {
-                Ok(((meminfo.swap_total - meminfo.swap_free) * 100 / meminfo.swap_total) as u8)
+            res.push(
+                ((meminfo.swap_total - meminfo.swap_free) * 100)
+                    .checked_div(meminfo.swap_total)
+                    .map(|v| v as u8)
+                    .ok_or_else(|| Error(String::from("Could not read swap usage.")))
                     .and_then(Self::Item::new)
-                    .map(Some)
-            } else {
-                Err(Error(String::from("Could not read swap usage.")))
-            });
+                    .map(Some),
+            );
         }
         Ok(res)
     }
